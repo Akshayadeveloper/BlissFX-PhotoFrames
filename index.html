@@ -1,0 +1,1302 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stunning Photo Frame Generator</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Base font for the entire body */
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden; /* Prevent horizontal scrolling */
+        }
+
+        /* Stunning couple's coded background with subtle animation */
+        .couple-background {
+            position: fixed; /* Fixed position to cover the entire viewport */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* Send to background */
+            /* Multiple radial and linear gradients for a soft, romantic feel */
+            background: radial-gradient(circle at top left, #ff9a9e, transparent 50%), /* Soft red/pink */
+                        radial-gradient(circle at bottom right, #fad0c4, transparent 50%), /* Peach */
+                        linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); /* Lavender to light pink diagonal */
+            background-size: 200% 200%; /* Larger background to allow panning */
+            animation: backgroundPan 15s ease infinite; /* Smooth, infinite panning animation */
+        }
+
+        /* Keyframes for the background panning animation */
+        @keyframes backgroundPan {
+            0% { background-position: 0% 0%; } /* Start from top-left */
+            50% { background-position: 100% 100%; } /* Move to bottom-right */
+            100% { background-position: 0% 0%; } /* Return to start */
+        }
+
+        /* Custom scrollbar for better UI aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px; /* Width of the scrollbar */
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; /* Color of the track */
+            border-radius: 10px; /* Rounded corners for the track */
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888; /* Color of the thumb */
+            border-radius: 10px; /* Rounded corners for the thumb */
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555; /* Color of the thumb on hover */
+        }
+
+        /* Canvas styling to ensure it's responsive and visually integrated */
+        #photoCanvas {
+            max-width: 100%; /* Ensure canvas scales down to fit container */
+            height: auto; /* Maintain aspect ratio */
+            display: block; /* Remove extra space below canvas element */
+            border-radius: 0.75rem; /* Rounded corners (Tailwind's rounded-xl) */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* Soft shadow (Tailwind's shadow-lg) */
+            background-color: #f0f0f0; /* Placeholder background color when no image is loaded */
+        }
+
+        /* Base button styling with curved corners, 3D effects and attention-grabbing gradients */
+        .btn {
+            @apply px-6 py-3 rounded-3xl font-semibold text-white transition duration-300 ease-in-out transform; /* Rounded-3xl for curved corners */
+            border: 1px solid; /* Default border */
+            /* Attention-grabbing gradient - Red-Pink to Soft Orange */
+            background-image: linear-gradient(135deg, #FF6B6B 0%, #FFD166 100%);
+            /* Enhanced soft, diffused shadow */
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2), 0 3px 8px rgba(0, 0, 0, 0.08);
+            border-color: rgba(255, 107, 107, 0.7); /* Border color matching gradient start */
+        }
+        .btn:hover {
+            /* Slightly shifted gradient on hover for visual interest */
+            background-image: linear-gradient(135deg, #FFD166 0%, #FF6B6B 100%);
+            transform: translateY(-3px); /* More pronounced lift */
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.25), 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+        .btn:active {
+            transform: translateY(0); /* Satisfying press effect */
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.05); /* Reduced shadow for pressed look */
+            /* Darker version of the gradient on active */
+            background-image: linear-gradient(135deg, #E05A5A 0%, #E0B050 100%);
+        }
+
+        /* Specific button color variations (overriding base .btn gradient) */
+        .btn-secondary {
+            /* Refreshing blue to pink gradient */
+            background-image: linear-gradient(135deg, #6A82FB 0%, #FC5C7D 100%);
+            border-color: rgba(106, 130, 251, 0.7);
+        }
+        .btn-secondary:hover {
+            background-image: linear-gradient(135deg, #FC5C7D 0%, #6A82FB 100%);
+        }
+        .btn-secondary:active {
+            background-image: linear-gradient(135deg, #5A6EDC 0%, #E04C6D 100%);
+        }
+
+        .btn-download {
+            /* Lively green to blue gradient */
+            background-image: linear-gradient(135deg, #2AF598 0%, #009EFD 100%);
+            border-color: rgba(42, 245, 152, 0.7);
+        }
+        .btn-download:hover {
+            background-image: linear-gradient(135deg, #009EFD 0%, #2AF598 100%);
+        }
+        .btn-download:active {
+            background-image: linear-gradient(135deg, #22D48A 0%, #007EC0 100%);
+        }
+
+        /* Styling for the emoji frame grid items with 3D effects and gradients */
+        .frame-grid-item {
+            @apply flex flex-col items-center justify-center p-3 rounded-xl cursor-pointer transition duration-200 ease-in-out transform;
+            border: 1px solid;
+            /* Very subtle light gradient for default state */
+            background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.7) 0%, rgba(240, 240, 240, 0.7) 100%);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.03); /* Soft diffused shadow */
+            border-color: rgba(220, 220, 220, 0.7); /* Light border */
+        }
+        .frame-grid-item:hover {
+            transform: translateY(-1px); /* Slight lift */
+            /* Slightly more pronounced light gradient on hover */
+            background-image: linear-gradient(135deg, rgba(240, 240, 240, 0.8) 0%, rgba(255, 255, 255, 0.8) 100%);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12), 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        .frame-grid-item.active {
+            transform: translateY(0); /* Resets to original position for "pressed" look */
+            /* Stronger gradient for active state, matching site background */
+            background-image: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05), inset 0 1px 3px rgba(0, 0, 0, 0.1); /* Inner shadow for pressed */
+            border-color: rgba(161, 140, 209, 0.8);
+        }
+        .frame-grid-item .emoji {
+            @apply text-3xl mb-1; /* Emoji size and spacing */
+        }
+        .frame-grid-item .name {
+            @apply text-sm font-medium text-gray-700; /* Name text style */
+        }
+        .frame-grid-item.active .name {
+            @apply text-white; /* Ensure name text is white when active */
+        }
+
+        /* Styling for category tabs with 3D effects and gradients */
+        .category-tab {
+            @apply px-4 py-2 rounded-t-lg font-semibold cursor-pointer transition duration-200 ease-in-out;
+            /* Light translucent gradient for default state */
+            background-image: linear-gradient(to top, rgba(255, 255, 255, 0.7) 0%, rgba(240, 240, 240, 0.7) 100%);
+            color: #4b5563; /* Default text color */
+            border: 1px solid transparent; /* Default transparent border */
+            border-bottom: none; /* No bottom border for tab effect */
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.03);
+        }
+        .category-tab:hover {
+            /* Slightly more pronounced light gradient on hover */
+            background-image: linear-gradient(to top, rgba(240, 240, 240, 0.8) 0%, rgba(255, 255, 255, 0.8) 100%);
+            color: #1f2937; /* Darker text on hover */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12), 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        .category-tab.active {
+            /* Stronger gradient for active tab, matching site background */
+            background-image: linear-gradient(to top, #a18cd1 0%, #fbc2eb 100%);
+            color: white; /* White text for active tab */
+            border-color: rgba(161, 140, 209, 0.8); /* Border color matching gradient */
+            border-bottom-color: transparent; /* Keep bottom border transparent for active tab */
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05), inset 0 1px 3px rgba(0, 0, 0, 0.1);
+            transform: translateY(0); /* Ensure no vertical shift on active */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col items-center justify-center p-4">
+    <!-- The stunning couple's coded background -->
+    <div class="couple-background"></div>
+
+    <!-- Main application container with high-end UI design -->
+    <div class="relative z-10 bg-white p-8 rounded-3xl shadow-2xl w-full max-w-4xl mx-auto my-8">
+        <h1 class="text-4xl font-bold text-center text-indigo-800 mb-8">Stunning Photo Frame Generator</h1>
+
+        <!-- Layout for controls and image display, responsive for mobile and desktop -->
+        <div class="flex flex-col md:flex-row gap-8">
+            <!-- Left Panel: Controls for image upload, frame selection, and actions -->
+            <div class="md:w-1/3 flex flex-col space-y-6">
+                <!-- Image Upload Section -->
+                <div class="bg-gray-50 p-6 rounded-xl shadow-inner">
+                    <label for="imageUpload" class="block text-lg font-medium text-gray-700 mb-3">Upload Your Photo</label>
+                    <input type="file" id="imageUpload" accept="image/*" class="block w-full text-sm text-gray-500
+                        file:mr-4 file:py-2 file:px-4
+                        file:rounded-3xl file:border-0 /* Rounded-3xl for file input button */
+                        file:text-sm file:font-semibold
+                        file:bg-gradient-to-r file:from-pink-300 file:to-purple-300 file:text-white /* Gradient for file input button */
+                        hover:file:from-purple-300 hover:file:to-pink-300 hover:file:shadow-md cursor-pointer">
+                </div>
+
+                <!-- Frame Selection Section (now with categories and grid) -->
+                <div class="bg-gray-50 p-6 rounded-xl shadow-inner">
+                    <label class="block text-lg font-medium text-gray-700 mb-3">Choose a Frame</label>
+                    
+                    <!-- Category Tabs -->
+                    <div id="categoryTabs" class="flex flex-wrap gap-2 mb-4 border-b border-gray-200">
+                        <!-- Category tabs will be dynamically added here -->
+                    </div>
+
+                    <!-- Frame Grid -->
+                    <div id="frameGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                        <!-- Frame items will be dynamically added here by JavaScript -->
+                    </div>
+
+                    <!-- Input for couple quotes, hidden by default -->
+                    <div id="quoteInputContainer" class="mt-4 hidden">
+                        <label for="coupleQuote" class="block text-sm font-medium text-gray-700 mb-2">Enter Quote:</label>
+                        <input type="text" id="coupleQuote" placeholder="Type your romantic quote here..." class="w-full px-3 py-2 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                </div>
+
+                <!-- Action Buttons Section -->
+                <div class="flex flex-col space-y-4">
+                    <button id="resetBtn" class="btn btn-secondary">Reset Image</button>
+                    <button id="downloadBtn" class="btn btn-download">Download Framed Photo</button>
+                </div>
+            </div>
+
+            <!-- Right Panel: Image Display Area -->
+            <div class="md:w-2/3 bg-gray-50 p-6 rounded-xl shadow-inner flex flex-col items-center justify-center min-h-[400px]">
+                <!-- Image tag to initially display uploaded image -->
+                <img id="uploadedImage" class="hidden max-w-full h-auto rounded-xl shadow-md mb-4" alt="Uploaded Image">
+                <!-- Canvas element for drawing and applying frames -->
+                <canvas id="photoCanvas" class="hidden"></canvas>
+                <!-- Message area for user feedback -->
+                <p id="message" class="text-gray-500 text-center">Upload an image to get started!</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get references to DOM elements
+        const imageUpload = document.getElementById('imageUpload');
+        const uploadedImage = document.getElementById('uploadedImage');
+        const photoCanvas = document.getElementById('photoCanvas');
+        const ctx = photoCanvas.getContext('2d'); // Get 2D rendering context for canvas
+        const categoryTabsContainer = document.getElementById('categoryTabs'); // New: Container for category tabs
+        const frameGrid = document.getElementById('frameGrid');
+        const resetBtn = document.getElementById('resetBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const message = document.getElementById('message');
+        const quoteInputContainer = document.getElementById('quoteInputContainer');
+        const coupleQuoteInput = document.getElementById('coupleQuote');
+
+        let originalImage = null; // Stores the original uploaded image object for high-quality processing
+        let currentFrame = ''; // Stores the currently selected frame type
+        let currentCategory = 'All'; // Stores the currently active category
+
+        // Define all available frames with their type, emoji, display name, and category
+        const frames = [
+            { type: 'vignette', emoji: '🌫️', name: 'Vignette', category: 'Effects' },
+            { type: 'vintage', emoji: '🎞️', name: 'Vintage', category: 'Effects' },
+            { type: 'blackAndWhite', emoji: '⚫⚪', name: 'Black & White', category: 'Effects' },
+            { type: 'pencilSketch', emoji: '✏️', name: 'Pencil Sketch', category: 'Effects' },
+            { type: 'romanticGlow', emoji: '💡', name: 'Romantic Glow', category: 'Effects' },
+
+            { type: 'snowFall', emoji: '🌨️', name: 'Snow Fall', category: 'Nature' },
+            { type: 'snowFlakes', emoji: '❄️', name: 'Snow Flakes', category: 'Nature' },
+            { type: 'bubbles', emoji: '🫧', name: 'Bubbles', category: 'Nature' },
+            { type: 'rainfall', emoji: '🌧️', name: 'Rainfall', category: 'Nature' },
+            { type: 'fireSparks', emoji: '✨', name: 'Fire Sparks', category: 'Nature' },
+            { type: 'starDust', emoji: '🌟', name: 'Star Dust', category: 'Nature' },
+            { type: 'cherryBlossoms', emoji: '🌸', name: 'Cherry Blossoms', category: 'Nature' },
+
+            { type: 'heartsFlow', emoji: '💖', name: 'Hearts Flow', category: 'Love' },
+            { type: 'coupleQuotes', emoji: '💬', name: 'Couple Quotes', category: 'Love' },
+            { type: 'heartsTwisted', emoji: '❤️‍🩹', name: 'Hearts Twisted', category: 'Love' },
+            { type: 'colorfulHeartGradient', emoji: '🩷🧡💛💚💙💜', name: 'Heart Gradient', category: 'Love' },
+
+            { type: 'blackFrame', emoji: '⬛', name: 'Black Frame', category: 'Borders' },
+            { type: 'whiteFrame', emoji: '⬜', name: 'White Frame', category: 'Borders' },
+            { type: 'redMaroonDarkBlueGradient', emoji: '🌈', name: 'Gradient Frame', category: 'Borders' },
+            { type: 'cuteFrame', emoji: '🎀', name: 'Cute Frame', category: 'Borders' },
+
+            { type: 'confetti', emoji: '🎉', name: 'Confetti', category: 'Celebration' },
+            { type: 'happyBirthday', emoji: '🎂', name: 'Happy Birthday', category: 'Celebration' }
+        ];
+
+        // Get unique categories for tab creation
+        const categories = ['All', ...new Set(frames.map(frame => frame.category))];
+
+        /**
+         * Dynamically renders the category tabs.
+         */
+        function renderCategoryTabs() {
+            categoryTabsContainer.innerHTML = '';
+            categories.forEach(category => {
+                const tab = document.createElement('button');
+                tab.classList.add('category-tab');
+                tab.textContent = category;
+                tab.dataset.category = category;
+                if (category === currentCategory) {
+                    tab.classList.add('active');
+                }
+                categoryTabsContainer.appendChild(tab);
+            });
+        }
+
+        /**
+         * Dynamically renders the frame selection grid based on the active category.
+         */
+        function renderFrameGrid() {
+            frameGrid.innerHTML = ''; // Clear existing content
+            const filteredFrames = currentCategory === 'All' ? frames : frames.filter(f => f.category === currentCategory);
+
+            filteredFrames.forEach(frame => {
+                const frameItem = document.createElement('div');
+                frameItem.classList.add('frame-grid-item');
+                frameItem.dataset.frameType = frame.type;
+                frameItem.title = frame.name; // Add title for hover tooltip
+
+                const emojiSpan = document.createElement('span');
+                emojiSpan.classList.add('emoji');
+                emojiSpan.textContent = frame.emoji;
+
+                const nameSpan = document.createElement('span');
+                nameSpan.classList.add('name');
+                nameSpan.textContent = frame.name;
+
+                frameItem.appendChild(emojiSpan);
+                frameItem.appendChild(nameSpan);
+                frameGrid.appendChild(frameItem);
+
+                // Highlight if this is the currently selected frame
+                if (frame.type === currentFrame) {
+                    frameItem.classList.add('active');
+                }
+            });
+        }
+
+        // Initial rendering of tabs and grid on page load
+        renderCategoryTabs();
+        renderFrameGrid();
+
+        /**
+         * Event listener for image upload.
+         * Reads the selected file, displays it, and prepares the canvas for drawing.
+         */
+        imageUpload.addEventListener('change', (event) => {
+            const file = event.target.files[0]; // Get the first selected file
+            if (file) {
+                const reader = new FileReader(); // Create a FileReader to read file content
+                reader.onload = (e) => {
+                    const img = new Image(); // Create a new Image object
+                    img.onload = () => {
+                        originalImage = img; // Store the loaded image
+                        uploadedImage.src = e.target.result; // Set src for the img tag
+                        uploadedImage.classList.remove('hidden'); // Show the img tag
+                        photoCanvas.classList.add('hidden'); // Hide canvas initially
+
+                        message.classList.add('hidden'); // Hide any previous messages
+
+                        // Set canvas dimensions to match original image for high quality processing
+                        photoCanvas.width = originalImage.width;
+                        photoCanvas.height = originalImage.height;
+
+                        // Clear canvas and draw original image
+                        drawOriginalImage();
+
+                        // If a frame was already selected, apply it automatically
+                        if (currentFrame) {
+                            applyFrame(currentFrame);
+                        }
+                    };
+                    img.src = e.target.result; // Set image source to the read data URL
+                };
+                reader.readAsDataURL(file); // Read the file as a data URL (base64 encoded)
+            } else {
+                resetApp(); // If no file selected, reset the app
+            }
+        });
+
+        /**
+         * Draws the original image onto the canvas.
+         * This function is called on image upload and when resetting the frame.
+         */
+        function drawOriginalImage() {
+            if (originalImage) {
+                ctx.clearRect(0, 0, photoCanvas.width, photoCanvas.height); // Clear previous drawings on canvas
+                ctx.drawImage(originalImage, 0, 0, photoCanvas.width, photoCanvas.height); // Draw image to fill canvas
+                // After drawing, switch to showing the canvas and hiding the img tag
+                uploadedImage.classList.add('hidden');
+                photoCanvas.classList.remove('hidden');
+            }
+        }
+
+        /**
+         * Event listener for category tab clicks.
+         * Updates the currentCategory and re-renders the frame grid.
+         */
+        categoryTabsContainer.addEventListener('click', (event) => {
+            const clickedTab = event.target.closest('.category-tab');
+            if (clickedTab) {
+                // Remove 'active' class from all category tabs
+                document.querySelectorAll('.category-tab').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                // Add 'active' class to the clicked tab
+                clickedTab.classList.add('active');
+                currentCategory = clickedTab.dataset.category;
+                renderFrameGrid(); // Re-render the frame grid for the new category
+            }
+        });
+
+        /**
+         * Event listener for emoji frame grid item clicks.
+         * Updates the currentFrame, highlights the active item, and toggles quote input.
+         * Automatically applies the frame if an image is loaded.
+         */
+        frameGrid.addEventListener('click', (event) => {
+            const clickedItem = event.target.closest('.frame-grid-item'); // Find the closest frame-grid-item ancestor
+            if (clickedItem) {
+                // Remove 'active' class from all items
+                document.querySelectorAll('.frame-grid-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+
+                // Add 'active' class to the clicked item
+                clickedItem.classList.add('active');
+
+                currentFrame = clickedItem.dataset.frameType; // Get frame type from data attribute
+
+                // Toggle quote input visibility
+                if (currentFrame === 'coupleQuotes') {
+                    quoteInputContainer.classList.remove('hidden');
+                } else {
+                    quoteInputContainer.classList.add('hidden');
+                }
+
+                // Automatically apply frame if an image is already uploaded
+                if (originalImage) {
+                    drawOriginalImage(); // Redraw original image first
+                    applyFrame(currentFrame);
+                } else {
+                    showMessage('Upload an image to see the frame effect!', 'text-blue-500');
+                }
+            }
+        });
+
+        /**
+         * Event listener for resetting the image.
+         * Calls the resetApp function to clear everything.
+         */
+        resetBtn.addEventListener('click', () => {
+            resetApp();
+            showMessage('Image reset. Upload a new one or choose a frame!', 'text-gray-500');
+        });
+
+        /**
+         * Resets the entire application state, clearing image, canvas, and inputs.
+         */
+        function resetApp() {
+            originalImage = null; // Clear original image data
+            uploadedImage.src = ''; // Clear img tag source
+            uploadedImage.classList.add('hidden'); // Hide img tag
+            photoCanvas.classList.add('hidden'); // Hide canvas
+            ctx.clearRect(0, 0, photoCanvas.width, photoCanvas.height); // Clear canvas content
+            imageUpload.value = ''; // Clear file input selection
+            
+            // Remove active class from all emoji grid items
+            document.querySelectorAll('.frame-grid-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            // Reset active category to 'All' and re-render tabs/grid
+            currentCategory = 'All';
+            renderCategoryTabs();
+            renderFrameGrid();
+
+            currentFrame = ''; // Clear current frame type
+            quoteInputContainer.classList.add('hidden'); // Hide quote input
+            coupleQuoteInput.value = ''; // Clear quote input value
+            showMessage('Upload an image to get started!', 'text-gray-500'); // Display initial message
+        }
+
+        /**
+         * Event listener for downloading the framed image.
+         * Creates a temporary link to download the canvas content as a PNG.
+         * @param {string} msg - The message text to display.
+         * @param {string} colorClass - Tailwind CSS class for text color (e.g., 'text-red-500').
+         */
+        downloadBtn.addEventListener('click', () => {
+            if (!originalImage) {
+                showMessage('No image to download!', 'text-red-500'); // Prompt user if no image
+                return;
+            }
+            // Create a temporary anchor element
+            const link = document.createElement('a');
+            link.download = 'framed_photo.png'; // Set default download filename
+            // Get the image data from the canvas as a PNG data URL (1.0 for max quality)
+            link.href = photoCanvas.toDataURL('image/png', 1.0);
+            document.body.appendChild(link); // Append link to body (required for click)
+            link.click(); // Programmatically click the link to trigger download
+            document.body.removeChild(link); // Remove the temporary link
+            showMessage('Framed photo downloaded!', 'text-green-500'); // Confirm download
+        });
+
+        /**
+         * Displays a temporary message to the user in the message area.
+         * @param {string} msg - The message text to display.
+         * @param {string} colorClass - Tailwind CSS class for text color (e.g., 'text-red-500').
+         */
+        function showMessage(msg, colorClass) {
+            message.textContent = msg; // Set message text
+            message.className = `text-center ${colorClass}`; // Apply text color class
+            message.classList.remove('hidden'); // Ensure message is visible
+            // Hide the message after 3 seconds
+            setTimeout(() => {
+                if (message.textContent === msg) { // Only hide if it's still the same message
+                    message.classList.add('hidden');
+                }
+            }, 3000);
+        }
+
+        /**
+         * Main function to apply different frame effects based on the selected type.
+         * It first redraws the original image to ensure a clean slate before applying effects.
+         * @param {string} frameType - The type of frame effect to apply.
+         */
+        function applyFrame(frameType) {
+            if (!originalImage) return; // Exit if no image is loaded
+
+            // Ensure the canvas is visible and correctly sized before drawing
+            uploadedImage.classList.add('hidden');
+            photoCanvas.classList.remove('hidden');
+            photoCanvas.width = originalImage.width;
+            photoCanvas.height = originalImage.height;
+            ctx.clearRect(0, 0, photoCanvas.width, photoCanvas.height); // Clear canvas
+            ctx.drawImage(originalImage, 0, 0, photoCanvas.width, photoCanvas.height); // Draw original image
+
+            const w = photoCanvas.width; // Canvas width
+            const h = photoCanvas.height; // Canvas height
+
+            showMessage(`Applying ${frameType} frame...`, 'text-indigo-500'); // Show progress message
+
+            // Use a switch statement to call the appropriate frame function
+            switch (frameType) {
+                case 'vignette':
+                    applyVignette(w, h);
+                    break;
+                case 'vintage':
+                    applyVintage(w, h);
+                    break;
+                case 'snowFall':
+                    drawSnow(w, h, 100, 'fall'); // 100 small snow particles
+                    break;
+                case 'snowFlakes':
+                    drawSnow(w, h, 50, 'flakes'); // 50 larger, star-like snowflakes
+                    break;
+                case 'bubbles':
+                    drawBubbles(w, h, 70); // 70 bubbles
+                    break;
+                case 'heartsFlow':
+                    drawHearts(w, h, 30, 'rgba(255, 105, 180, 0.8)'); // 30 hot pink hearts
+                    break;
+                case 'rainfall':
+                    drawRainfall(w, h, 150); // 150 raindrops
+                    break;
+                case 'fireSparks':
+                    drawFireSparks(w, h, 100); // 100 fire sparks
+                    break;
+                case 'starDust':
+                    drawStarDust(w, h, 200); // 200 stardust particles
+                    break;
+                case 'romanticGlow':
+                    applyRomanticGlow(w, h);
+                    break;
+                case 'coupleQuotes':
+                    applyCoupleQuotes(w, h, coupleQuoteInput.value); // Apply user-entered quote
+                    break;
+                case 'heartsTwisted':
+                    drawHeartsTwisted(w, h, 40); // 40 twisted red and blue hearts
+                    break;
+                case 'blackAndWhite':
+                    applyBlackAndWhite(w, h);
+                    break;
+                case 'sparkles':
+                    drawSparkles(w, h, 80); // 80 sparkles
+                    break;
+                case 'cherryBlossoms':
+                    drawCherryBlossoms(w, h, 60); // 60 cherry blossom petals
+                    break;
+                case 'confetti':
+                    drawConfetti(w, h, 100); // 100 confetti pieces
+                    break;
+                case 'happyBirthday':
+                    drawHappyBirthday(w, h);
+                    break;
+                case 'blackFrame':
+                    drawSolidFrame(w, h, 'black');
+                    break;
+                case 'whiteFrame':
+                    drawSolidFrame(w, h, 'white');
+                    break;
+                case 'redMaroonDarkBlueGradient':
+                    drawGradientFrame(w, h, ['#8B0000', '#800000', '#00008B']); // Red, Maroon, Dark Blue gradient
+                    break;
+                case 'colorfulHeartGradient':
+                    drawColorfulHeartGradientFrame(w, h);
+                    break;
+                case 'pencilSketch':
+                    applyPencilSketch(w, h);
+                    break;
+                case 'cuteFrame':
+                    drawCuteFrame(w, h);
+                    break;
+                default:
+                    showMessage('Please select a valid frame type.', 'text-red-500');
+                    break;
+            }
+            showMessage(`Frame '${frameType}' applied!`, 'text-green-500'); // Confirm frame application
+        }
+
+        // --- Frame Effect Functions ---
+
+        /**
+         * Applies a vignette effect to the image, darkening the edges.
+         * @param {number} w - Canvas width.
+         * @param {number} h - Canvas height.
+         */
+        function applyVignette(w, h) {
+            ctx.globalCompositeOperation = 'source-over'; // Ensure new drawing overlays existing image
+            // Create a radial gradient from center (transparent) to edges (dark)
+            const gradient = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.3, w / 2, h / 2, Math.min(w, h) * 0.7);
+            gradient.addColorStop(0, 'rgba(0,0,0,0)'); // Transparent in the center
+            gradient.addColorStop(0.7, 'rgba(0,0,0,0.3)'); // Slightly dark towards 70% radius
+            gradient.addColorStop(1, 'rgba(0,0,0,0.7)'); // Opaque black at the edges
+            ctx.fillStyle = gradient; // Set fill style to the gradient
+            ctx.fillRect(0, 0, w, h); // Draw the gradient over the entire canvas
+        }
+
+        /**
+         * Applies a vintage (sepia-like) effect to the image by manipulating pixel data.
+         * @param {number} w - Canvas width.
+         * @param {number} h - Canvas height.
+         */
+        function applyVintage(w, h) {
+            const imageData = ctx.getImageData(0, 0, w, h); // Get all pixel data
+            const pixels = imageData.data; // Array of [R, G, B, A] values
+            for (let i = 0; i < pixels.length; i += 4) {
+                const r = pixels[i];
+                const g = pixels[i + 1];
+                const b = pixels[i + 2];
+                // Apply sepia conversion formula
+                pixels[i] = (r * 0.393) + (g * 0.769) + (b * 0.189);     // Red component
+                pixels[i + 1] = (r * 0.349) + (g * 0.686) + (b * 0.168); // Green component
+                pixels[i + 2] = (r * 0.272) + (g * 0.534) + (b * 0.131); // Blue component
+            }
+            ctx.putImageData(imageData, 0, 0); // Put modified pixel data back to canvas
+        }
+
+        /**
+         * Draws snow (either small falling particles or larger flakes) on the canvas.
+         * @param {number} w - Canvas width.
+         * @param {number} h - Canvas height.
+         * @param {number} count - Number of snow particles/flakes to draw.
+         * @param {string} type - 'fall' for small circles, 'flakes' for star-like shapes.
+         */
+        function drawSnow(w, h, count, type) {
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)'; // White, slightly translucent
+            for (let i = 0; i < count; i++) {
+                const x = Math.random() * w; // Random X position
+                const y = Math.random() * h; // Random Y position
+                const radius = Math.random() * 2 + 1; // Random radius between 1 and 3
+                if (type === 'fall') {
+                    ctx.beginPath();
+                    ctx.arc(x, y, radius, 0, Math.PI * 2); // Draw a circle
+                    ctx.fill();
+                } else { // type === 'flakes'
+                    drawStar(ctx, x, y, radius * 2, 5, 0.5); // Draw a 5-pointed star
+                }
+            }
+        }
+
+        /**
+         * Helper function to draw a generic star shape.
+         * @param {CanvasRenderingContext2D} ctx - The canvas rendering context.
+         * @param {number} cx - Center X coordinate of the star.
+         * @param {number} cy - Center Y coordinate of the star.
+         * @param {number} outerRadius - The radius from the center to the outer points.
+         * @param {number} points - The number of points (e.g., 5 for a typical star).
+         * @param {number} innerRatio - The ratio of the inner radius to the outer radius (e.g., 0.5).
+         */
+        function drawStar(ctx, cx, cy, outerRadius, points, innerRatio) {
+            const innerRadius = outerRadius * innerRatio;
+            let rot = Math.PI / 2 * 3; // Starting rotation (top point)
+            const step = Math.PI / points; // Angle between points
+
+            ctx.beginPath();
+            ctx.moveTo(cx, cy - outerRadius); // Move to the first outer point
+            for (let i = 0; i < points; i++) {
+                // Outer point
+                let x = cx + Math.cos(rot) * outerRadius;
+                let y = cy + Math.sin(rot) * outerRadius;
+                ctx.lineTo(x, y);
+                rot += step;
+
+                // Inner point
+                x = cx + Math.cos(rot) * innerRadius;
+                y = cy + Math.sin(rot) * innerRadius;
+                ctx.lineTo(x, y);
+                rot += step;
+            }
+            ctx.lineTo(cx, cy - outerRadius); // Close path back to the first point
+            ctx.closePath();
+            ctx.fill(); // Fill the star
+        }
+
+
+        /**
+         * Draws translucent bubbles on the canvas.
+         * @param {number} w - Canvas width.
+         * @param {number} h - Canvas height.
+         * @param {number} count - Number of bubbles to draw.
+         */
+        function drawBubbles(w, h, count) {
+            ctx.globalCompositeOperation = 'source-over';
+            for (let i = 0; i < count; i++) {
+                const x = Math.random() * w;
+                const y = Math.random() * h;
+                const radius = Math.random() * 15 + 5; // Random radius between 5 and 20
+                ctx.beginPath();
+                ctx.arc(x, y, radius, 0, Math.PI * 2); // Draw a circle
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)'; // White outline, 70% opacity
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.2)'; // White fill, 20% opacity (translucent)
+                ctx.lineWidth = 1.5; // Thin outline
+                ctx.fill(); // Fill the bubble
+                ctx.stroke(); // Draw the outline
+            }
+        }
+
+        /**
+         * Draws hearts flowing across the canvas.
+         * @param {number} w - Canvas width.
+         * @param {number} h - Canvas height.
+         * @param {number} count - Number of hearts to draw.
+         * @param {string} color - Fill color of the hearts.
+         */
+        function drawHearts(w, h, count, color) {
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.fillStyle = color;
+            for (let i = 0; i < count; i++) {
+                const x = Math.random() * w;
+                const y = Math.random() * h;
+                const size = Math.random() * 20 + 10; // Random size between 10 and 30
+                drawHeartShape(ctx, x, y, size, color); // Draw a single heart
+            }
+        }
+
+        /**
+         * Helper function to draw a single heart shape using Bezier curves.
+         * @param {CanvasRenderingContext2D} ctx - The canvas rendering context.
+         * @param {number} x - X coordinate of the heart's approximate center.
+         * @param {number} y - Y coordinate of the heart's approximate center.
+         * @param {number} size - Overall size of the heart.
+         * @param {string} color - Fill color of the heart.
+         */
+        function drawHeartShape(ctx, x, y, size, color) {
+            ctx.save(); // Save current canvas state
+            ctx.translate(x, y); // Move origin to heart's position
+            ctx.beginPath();
+            // Define heart shape using Bezier curves
+            ctx.moveTo(0, size / 4);
+            ctx.bezierCurveTo(size / 2, -size / 2, size, 0, 0, size);
+            ctx.bezierCurveTo(-size, 0, -size / 2, -size / 2, 0, size / 4);
+            ctx.closePath();
+            ctx.fillStyle = color; // Set fill color
+            ctx.fill(); // Fill the heart
+            ctx.restore(); // Restore previous canvas state
+        }
+
+        /**
+         * Draws rainfall (vertical lines) on the canvas.
+         * @param {number} w - Canvas width.
+         * @param {number} h - Canvas height.
+         * @param {number} count - Number of raindrops to draw.
+         */
+        function drawRainfall(w, h, count) {
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.strokeStyle = 'rgba(173, 216, 230, 0.7)'; // Light blue, 70% opacity
+            ctx.lineWidth = 1.5; // Thin lines
+            for (let i = 0; i < count; i++) {
+                const x = Math.random() * w;
+                const y = Math.random() * h;
+                const length = Math.random() * 15 + 5; // Random length between 5 and 20
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x + length / 4, y + length); // Draw a slightly angled line for realism
+                ctx.stroke(); // Draw the line
+            }
+        }
+
+        /**
+         * Draws fire sparks (small glowing dots) on the canvas.
+         * @param {number} w - Canvas width.
+         * @param {number} h - Canvas height.
+         * @param {number} count - Number of sparks to draw.
+         */
+        function drawFireSparks(w, h, count) {
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)'; // White with varying opacity
+            for (let i = 0; i < count; i++) {
+                const x = Math.random() * w;
+                const y = Math.random() * h;
+                const radius = Math.random() * 2 + 1; // Random radius between 1 and 3
+                const opacity = Math.random() * 0.5 + 0.5; // Random opacity between 0.5 and 1.0
+                const color = `rgba(255, ${Math.floor(Math.random() * 100) + 155}, 0, ${opacity})`; // Orange-yellow color with varying opacity
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.arc(x, y, radius, 0, Math.PI * 2); // Draw a circle
+                ctx.fill();
+            }
+        }
+
+        /**
+         * Draws star dust (small, faint dots) on the canvas.
+         * @param {number} w - Canvas width.
+         * @param {number} h - Canvas height.
+         * @param {number} count - Number of dust particles to draw.
+         */
+        function drawStarDust(w, h, count) {
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)'; // White with varying opacity
+            for (let i = 0; i < count; i++) {
+                const x = Math.random() * w;
+                const y = Math.random() * h;
+                const radius = Math.random() * 1.5 + 0.5; // Random radius between 0.5 and 2
+                const opacity = Math.random() * 0.7 + 0.3; // Random opacity between 0.3 and 1.0
+                const color = `rgba(255, 255, 255, ${opacity})`; // White with varying opacity
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.arc(x, y, radius, 0, Math.PI * 2); // Draw a circle
+                ctx.fill();
+            }
+        }
+
+        /**
+         * Applies a subtle romantic glow effect around the edges of the image.
+         * @param {number} w - Canvas width.
+         * @param {number} h - Canvas height.
+         */
+        function applyRomanticGlow(w, h) {
+            ctx.globalCompositeOperation = 'source-over';
+            // Create a radial gradient for the glow effect
+            const gradient = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.3, w / 2, h / 2, Math.min(w, h) * 0.5);
+            gradient.addColorStop(0, 'rgba(255, 220, 220, 0)'); // Transparent pink in the center
+            gradient.addColorStop(0.8, 'rgba(255, 192, 203, 0.3)'); // Light pink glow
+            gradient.addColorStop(1, 'rgba(255, 160, 180, 0.5)'); // Deeper pink at the edges
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, w, h); // Draw the gradient over the entire canvas
+        }
+
+        /**
+         * Overlays user-provided or default couple quotes on the image.
+         * Text is automatically wrapped to fit within the canvas width.
+         * @param {number} w - Canvas width.
+         * @param {number} h - Canvas height.
+         * @param {string} quoteText - The quote string to display.
+         */
+        function applyCoupleQuotes(w, h, quoteText) {
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)'; // White fill for text
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)'; // Semi-transparent black stroke for readability
+            ctx.lineWidth = 2;
+            ctx.textAlign = 'center'; // Center align text
+            ctx.textBaseline = 'middle'; // Align text vertically in the middle
+            const fontSize = Math.min(w, h) * 0.05; // Responsive font size based on smaller dimension
+            ctx.font = `${fontSize}px 'Inter', sans-serif`; // Set font style
+
+            const quote = coupleQuoteInput.value || "Love is a journey, not a destination."; // Default quote if none provided
+
+            // Logic to wrap text into multiple lines if it exceeds maxLineWidth
+            const maxLineWidth = w * 0.8; // 80% of canvas width
+            const words = quote.split(' ');
+            let line = '';
+            let lines = [];
+            for (let n = 0; n < words.length; n++) {
+                const testLine = line + words[n] + ' ';
+                const metrics = ctx.measureText(testLine);
+                const testWidth = metrics.width;
+                if (testWidth > maxLineWidth && n > 0) {
+                    lines.push(line);
+                    line = words[n] + ' ';
+                } else {
+                    line = testLine;
+                }
+            }
+            lines.push(line); // Add the last line
+
+            const lineHeight = fontSize * 1.2; // Spacing between lines
+            const startY = h / 2 - (lines.length - 1) * lineHeight / 2; // Calculate starting Y to center text block
+
+            // Draw each line of text
+            lines.forEach((l, index) => {
+                ctx.fillText(l, w / 2, startY + index * lineHeight); // Fill text
+                ctx.strokeText(l, w / 2, startY + index * lineHeight); // Stroke text for outline
+            });
+        }
+
+        /**
+         * Draws twisted hearts (alternating red and dark blue) on the canvas.
+         * Each heart has a random position and rotation.
+         * @param {number} w - Canvas width.
+         * @param {number} h - Canvas height.
+         * @param {number} count - Number of hearts to draw.
+         */
+        function drawHeartsTwisted(w, h, count) {
+            ctx.globalCompositeOperation = 'source-over';
+            for (let i = 0; i < count; i++) {
+                const x = Math.random() * w;
+                const y = Math.random() * h;
+                const size = Math.random() * 20 + 10; // Random size between 10 and 30
+                const color = i % 2 === 0 ? 'rgba(255, 0, 0, 0.8)' : 'rgba(0, 0, 139, 0.8)'; // Red or Dark Blue
+                ctx.save(); // Save current state before translation and rotation
+                ctx.translate(x, y); // Move origin to heart's position
+                ctx.rotate(Math.random() * Math.PI * 2); // Apply random rotation
+                drawHeartShape(ctx, 0, 0, size, color); // Draw heart at new origin (0,0)
+                ctx.restore(); // Restore previous canvas state
+            }
+        }
+
+        /**
+         * Converts the image to black and white (grayscale) by manipulating pixel data.
+         * @param {number} w - Canvas width.
+         * @param {number} h - Canvas height.
+         */
+        function applyBlackAndWhite(w, h) {
+            const imageData = ctx.getImageData(0, 0, w, h); // Get all pixel data
+            const pixels = imageData.data; // Array of [R, G, B, A] values
+            for (let i = 0; i < pixels.length; i += 4) {
+                const r = pixels[i];
+                const g = pixels[i + 1];
+                const b = pixels[i + 2];
+                const gray = (r + g + b) / 3; // Simple average for grayscale conversion
+                pixels[i] = gray;       // Set Red to grayscale value
+                pixels[i + 1] = gray;   // Set Green to grayscale value
+                pixels[i + 2] = gray;   // Set Blue to grayscale value
+            }
+            ctx.putImageData(imageData, 0, 0); // Put modified pixel data back to canvas
+        }
+
+        /**
+         * Draws sparkles (4-pointed stars) on the canvas.
+         * @param {number} w - Canvas width.
+         * @param {number} h - Canvas height.
+         * @param {number} count - Number of sparkles to draw.
+         */
+        function drawSparkles(w, h, count) {
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)'; // White, 90% opacity
+            for (let i = 0; i < count; i++) {
+                const x = Math.random() * w;
+                const y = Math.random() * h;
+                const size = Math.random() * 5 + 2; // Random size between 2 and 7
+                drawStar(ctx, x, y, size, 4, 0.3); // Draw a 4-pointed star
+            }
+        }
+
+        /**
+         * Draws cherry blossom petals on the canvas with random positions and rotations.
+         * @param {number} w - Canvas width.
+         * @param {number} h - Canvas height.
+         * @param {number} count - Number of petals to draw.
+         */
+        function drawCherryBlossoms(w, h, count) {
+            ctx.globalCompositeOperation = 'source-over';
+            for (let i = 0; i < count; i++) {
+                const x = Math.random() * w;
+                const y = Math.random() * h;
+                const size = Math.random() * 15 + 10; // Random size between 10 and 25
+                const rotation = Math.random() * Math.PI * 2; // Random rotation angle
+                drawCherryBlossomPetal(ctx, x, y, size, rotation); // Draw a single petal
+            }
+        }
+
+        /**
+         * Helper function to draw a single cherry blossom petal using Bezier curves.
+         * @param {CanvasRenderingContext2D} ctx - The canvas rendering context.
+         * @param {number} x - X coordinate of the petal's center.
+         * @param {number} y - Y coordinate of the petal's center.
+         * @param {number} size - Size of the petal.
+         * @param {number} rotation - Rotation angle in radians.
+         */
+        function drawCherryBlossomPetal(ctx, x, y, size, rotation) {
+            ctx.save(); // Save current canvas state
+            ctx.translate(x, y); // Move origin to petal's position
+            ctx.rotate(rotation); // Apply rotation
+            ctx.beginPath();
+            // Define petal shape using Bezier curves
+            ctx.moveTo(0, 0);
+            ctx.bezierCurveTo(size * 0.5, -size * 0.5, size * 1.5, size * 0.5, 0, size);
+            ctx.bezierCurveTo(-size * 1.5, size * 0.5, -size * 0.5, -size * 0.5, 0, 0);
+            ctx.closePath();
+            ctx.fillStyle = `rgba(255, 192, 203, ${Math.random() * 0.4 + 0.5})`; // Pink with varying opacity
+            ctx.fill(); // Fill the petal
+            ctx.restore(); // Restore previous canvas state
+        }
+
+        /**
+         * Draws colorful confetti pieces (rectangles, circles, triangles) on the canvas.
+         * @param {number} w - Canvas width.
+         * @param {number} h - Canvas height.
+         * @param {number} count - Number of confetti pieces to draw.
+         */
+        function drawConfetti(w, h, count) {
+            ctx.globalCompositeOperation = 'source-over';
+            const colors = ['#f00', '#0f0', '#00f', '#ff0', '#0ff', '#f0f']; // Array of bright colors
+            for (let i = 0; i < count; i++) {
+                const x = Math.random() * w;
+                const y = Math.random() * h;
+                const size = Math.random() * 8 + 3; // Random size between 3 and 11
+                const color = colors[Math.floor(Math.random() * colors.length)]; // Random color from array
+                ctx.fillStyle = color;
+                ctx.save(); // Save state for translation and rotation
+                ctx.translate(x, y); // Move origin to confetti piece position
+                ctx.rotate(Math.random() * Math.PI * 2); // Apply random rotation
+                const shapeType = Math.floor(Math.random() * 3); // Random shape: 0=rect, 1=circle, 2=triangle
+                if (shapeType === 0) {
+                    ctx.fillRect(-size / 2, -size / 2, size, size); // Draw rectangle centered
+                } else if (shapeType === 1) {
+                    ctx.beginPath();
+                    ctx.arc(0, 0, size / 2, 0, Math.PI * 2); // Draw circle centered
+                    ctx.fill();
+                } else {
+                    ctx.beginPath();
+                    ctx.moveTo(0, -size / 2); // Top point of triangle
+                    ctx.lineTo(size / 2, size / 2); // Bottom right point
+                    ctx.lineTo(-size / 2, size / 2); // Bottom left point
+                    ctx.closePath();
+                    ctx.fill();
+                }
+                ctx.restore(); // Restore previous canvas state
+            }
+        }
+
+        /**
+         * Draws "Happy Birthday" text and simple balloon elements on the canvas.
+         * @param {number} w - Canvas width.
+         * @param {number} h - Canvas height.
+         */
+        function drawHappyBirthday(w, h) {
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)'; // White fill for text
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.6)'; // Semi-transparent black stroke
+            ctx.lineWidth = 2;
+            ctx.textAlign = 'center'; // Center align text
+            ctx.textBaseline = 'middle'; // Vertically middle align text
+            const fontSize = Math.min(w, h) * 0.08; // Responsive font size
+            ctx.font = `bold ${fontSize}px 'Inter', sans-serif`; // Bold font
+
+            // Draw "Happy"
+            ctx.fillText('Happy', w / 2, h * 0.4);
+            ctx.strokeText('Happy', w / 2, h * 0.4);
+
+            // Draw "Birthday!"
+            ctx.fillText('Birthday!', w / 2, h * 0.6);
+            ctx.strokeText('Birthday!', w / 2, h * 0.6);
+
+            // Draw simple balloons
+            ctx.fillStyle = 'rgba(255, 0, 0, 0.7)'; // Red balloon
+            ctx.beginPath();
+            ctx.arc(w * 0.2, h * 0.2, Math.min(w, h) * 0.05, 0, Math.PI * 2); // Balloon body
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)'; // String color
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(w * 0.2, h * 0.2 + Math.min(w, h) * 0.05); // Bottom of balloon
+            ctx.lineTo(w * 0.2 - 10, h * 0.35); // String end
+            ctx.stroke();
+
+            ctx.fillStyle = 'rgba(0, 0, 255, 0.7)'; // Blue balloon
+            ctx.beginPath();
+            ctx.arc(w * 0.8, h * 0.25, Math.min(w, h) * 0.05, 0, Math.PI * 2); // Balloon body
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(w * 0.8, h * 0.25 + Math.min(w, h) * 0.05); // Bottom of balloon
+            ctx.lineTo(w * 0.8 + 10, h * 0.4); // String end
+            ctx.stroke();
+        }
+
+        /**
+         * Draws a solid color frame around the image.
+         * @param {number} w - Canvas width.
+         * @param {number} h - Canvas height.
+         * @param {string} color - The CSS color string for the frame.
+         */
+        function drawSolidFrame(w, h, color) {
+            ctx.globalCompositeOperation = 'source-over';
+            const frameWidth = Math.min(w, h) * 0.05; // Frame width is 5% of the smaller dimension
+            ctx.fillStyle = color; // Set fill color
+            ctx.fillRect(0, 0, w, frameWidth); // Top frame
+            ctx.fillRect(0, h - frameWidth, w, frameWidth); // Bottom frame
+            ctx.fillRect(0, frameWidth, frameWidth, h - 2 * frameWidth); // Left frame (adjusted for top/bottom)
+            ctx.fillRect(w - frameWidth, frameWidth, frameWidth, h - 2 * frameWidth); // Right frame
+        }
+
+        /**
+         * Draws a gradient frame around the image using specified colors.
+         * @param {number} w - Canvas width.
+         * @param {number} h - Canvas height.
+         * @param {string[]} colors - An array of CSS color strings for the gradient stops.
+         */
+        function drawGradientFrame(w, h, colors) {
+            ctx.globalCompositeOperation = 'source-over';
+            const frameWidth = Math.min(w, h) * 0.05; // Frame width
+
+            // Top frame: horizontal gradient
+            let gradient = ctx.createLinearGradient(0, 0, w, 0);
+            gradient.addColorStop(0, colors[0]);
+            gradient.addColorStop(0.5, colors[1]);
+            gradient.addColorStop(1, colors[2]);
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, w, frameWidth);
+
+            // Bottom frame: horizontal gradient (reversed colors for continuity)
+            gradient = ctx.createLinearGradient(0, 0, w, 0); // Create new gradient for bottom
+            gradient.addColorStop(0, colors[2]);
+            gradient.addColorStop(0.5, colors[1]);
+            gradient.addColorStop(1, colors[0]);
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, h - frameWidth, w, frameWidth);
+
+            // Left frame: vertical gradient
+            gradient = ctx.createLinearGradient(0, 0, 0, h);
+            gradient.addColorStop(0, colors[0]);
+            gradient.addColorStop(0.5, colors[1]);
+            gradient.addColorStop(1, colors[2]);
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, frameWidth, frameWidth, h - 2 * frameWidth);
+
+            // Right frame: vertical gradient (reversed colors)
+            gradient = ctx.createLinearGradient(0, 0, 0, h);
+            gradient.addColorStop(0, colors[2]);
+            gradient.addColorStop(0.5, colors[1]);
+            gradient.addColorStop(1, colors[0]);
+            ctx.fillStyle = gradient;
+            ctx.fillRect(w - frameWidth, frameWidth, frameWidth, h - 2 * frameWidth);
+        }
+
+        /**
+         * Draws a frame filled with a repeating pattern of colorful hearts.
+         * @param {number} w - Canvas width.
+         * @param {number} h - Canvas height.
+         */
+        function drawColorfulHeartGradientFrame(w, h) {
+            ctx.globalCompositeOperation = 'source-over';
+            const frameWidth = Math.min(w, h) * 0.05; // Frame width
+
+            // Create a temporary canvas to draw the heart pattern
+            const patternCanvas = document.createElement('canvas');
+            patternCanvas.width = 50; // Size of one pattern unit
+            patternCanvas.height = 50;
+            const pctx = patternCanvas.getContext('2d');
+            pctx.fillStyle = 'transparent'; // Transparent background for the pattern unit
+            pctx.fillRect(0, 0, 50, 50);
+            const heartColors = ['#FF69B4', '#FF1493', '#DC143C', '#FF4500', '#FFD700']; // Various pink/red/gold colors
+            // Draw multiple small hearts within the pattern unit
+            for (let i = 0; i < 5; i++) {
+                drawHeartShape(pctx, Math.random() * 50, Math.random() * 50, Math.random() * 10 + 5, heartColors[i]);
+            }
+            const heartPattern = ctx.createPattern(patternCanvas, 'repeat'); // Create a repeating pattern from the temp canvas
+
+            // Apply the heart pattern as the fill style for the frame
+            ctx.fillStyle = heartPattern;
+
+            ctx.fillRect(0, 0, w, frameWidth); // Top frame
+            ctx.fillRect(0, h - frameWidth, w, frameWidth); // Bottom frame
+            ctx.fillRect(0, frameWidth, frameWidth, h - 2 * frameWidth); // Left frame
+            ctx.fillRect(w - frameWidth, frameWidth, frameWidth, h - 2 * frameWidth); // Right frame
+        }
+
+        /**
+         * Applies a pencil sketch effect to the image. This is an approximation
+         * involving grayscale conversion and a simple edge detection filter.
+         * @param {number} w - Canvas width.
+         * @param {number} h - Canvas height.
+         */
+        function applyPencilSketch(w, h) {
+            // First, convert the image to grayscale
+            applyBlackAndWhite(w, h);
+
+            const imageData = ctx.getImageData(0, 0, w, h);
+            const pixels = imageData.data;
+            // Create a temporary canvas to store the grayscale image for convolution
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = w;
+            tempCanvas.height = h;
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCtx.putImageData(imageData, 0, 0); // Put grayscale data onto temp canvas
+
+            // Prepare output image data
+            const outputImageData = ctx.createImageData(w, h);
+            const outputPixels = outputImageData.data;
+
+            // Laplacian kernel for edge detection (approximation)
+            const kernel = [
+                -1, -1, -1,
+                -1,  8, -1,
+                -1, -1, -1
+            ];
+            const kernelSize = 3;
+            const halfKernel = Math.floor(kernelSize / 2);
+
+            // Iterate over each pixel to apply the convolution filter
+            for (let y = 0; y < h; y++) {
+                for (let x = 0; x < w; x++) {
+                    let rSum = 0;
+                    let gSum = 0;
+                    let bSum = 0;
+
+                    // Apply kernel to surrounding pixels
+                    for (let ky = 0; ky < kernelSize; ky++) {
+                        for (let kx = 0; kx < kernelSize; kx++) {
+                            const pixelX = x + kx - halfKernel;
+                            const pixelY = y + ky - halfKernel;
+
+                            // Check bounds to avoid errors at edges
+                            if (pixelX >= 0 && pixelX < w && pixelY >= 0 && pixelY < h) {
+                                const index = (pixelY * w + pixelX) * 4;
+                                const kernelValue = kernel[ky * kernelSize + kx];
+                                rSum += pixels[index] * kernelValue;
+                                gSum += pixels[index + 1] * kernelValue;
+                                bSum += pixels[index + 2] * kernelValue;
+                            }
+                        }
+                    }
+
+                    const outputIndex = (y * w + x) * 4;
+                    // Invert and clamp values to create the sketch effect (dark lines on light background)
+                    outputPixels[outputIndex] = 255 - Math.min(255, Math.max(0, rSum));
+                    outputPixels[outputIndex + 1] = 255 - Math.min(255, Math.max(0, gSum));
+                    outputPixels[outputIndex + 2] = 255 - Math.min(255, Math.max(0, bSum));
+                    outputPixels[outputIndex + 3] = 255; // Keep alpha channel opaque
+                }
+            }
+            ctx.putImageData(outputImageData, 0, 0); // Put filtered data back to main canvas
+        }
+
+
+        /**
+         * Draws a "cute" frame composed of 4 bows, 3 sparkles, and 2 hearts.
+         * Reuses existing drawing functions for these elements.
+         * @param {number} w - Canvas width.
+         * @param {number} h - Canvas height.
+         */
+        function drawCuteFrame(w, h) {
+            ctx.globalCompositeOperation = 'source-over';
+
+            // 4 Bows (drawn at corners)
+            const bowSize = Math.min(w, h) * 0.07; // Responsive bow size
+            const bowColor = '#FFC0CB'; // Pink fill
+            const bowOutline = '#FF69B4'; // Hot Pink outline
+
+            // Helper function to draw a single bow
+            function drawBow(x, y, size) {
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.beginPath();
+                // Define bow shape using Bezier curves
+                ctx.moveTo(0, 0);
+                ctx.bezierCurveTo(-size / 2, -size / 2, -size, size / 2, 0, size);
+                ctx.bezierCurveTo(size, size / 2, size / 2, -size / 2, 0, 0);
+                ctx.closePath();
+                ctx.fillStyle = bowColor;
+                ctx.fill();
+                ctx.strokeStyle = bowOutline;
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                // Draw the center knot of the bow
+                ctx.beginPath();
+                ctx.arc(0, size / 2, size / 4, 0, Math.PI * 2);
+                ctx.fillStyle = bowOutline;
+                ctx.fill();
+                ctx.restore();
+            }
+
+            // Draw bows at approximate corners
+            drawBow(w * 0.1, h * 0.1, bowSize); // Top-left
+            drawBow(w * 0.9, h * 0.1, bowSize); // Top-right
+            drawBow(w * 0.1, h * 0.9, bowSize); // Bottom-left
+            drawBow(w * 0.9, h * 0.9, bowSize); // Bottom-right
+
+            // 3 Sparkles (reusing drawSparkles function, drawing 3 more)
+            drawSparkles(w, h, 3);
+
+            // 2 Hearts (reusing drawHearts function, drawing 2 more)
+            drawHearts(w, h, 2, 'rgba(255, 0, 0, 0.8)'); // Red hearts
+        }
+
+        // Initial setup message displayed when the page loads
+        showMessage('Upload an image to get started!', 'text-gray-500');
+
+    </script>
+</body>
+</html>
